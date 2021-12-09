@@ -1,15 +1,20 @@
 const express = require('express'); // express module 가져오기
-const bodyParser = require('body-parser');
 const app = express(); // new express application make
-const { User } = require('./models/User');
 const port = 5000;
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const config = require('./config/key');
+
+const { User } = require('./models/User');
 
 // bodyParser option
 // application/x-222-form-urlencoded  // 이렇게 된 data를 분석해서 가져올 수 있게 해주는 코드
 app.use(bodyParser.urlencoded({ extended: true }));
 // application.json type으로 된 것을 분석해서 가져올 수 있게 해주는 코드
 app.use(bodyParser.json());
+
+// cookieParser 사용
+app.use(cookieParser());
 
 const mongoose = require('mongoose');
 mongoose
@@ -53,8 +58,8 @@ app.post('/register', (request, response) => {
  */
 app.post('/login', (request, response) => {
   // 1. 요청 된 email이 DB에 있는 지 찾는다. : DB에서 찾기 위해 user model을 가져온다. -> findOne method: mongoDB에서 제공
-  User.findOne({ email: request.body.email }, (err, userInfo) => {
-    if (!userInfo) {
+  User.findOne({ email: request.body.email }, (err, user) => {
+    if (!user) {
       return response.json({
         loginSuccess: false,
         message: '제공 된 이메일에 해당하는 사용자가 없습니다..:(',
@@ -68,6 +73,19 @@ app.post('/login', (request, response) => {
           loginSuccess: false,
           message: '비밀번호가 틀렸습니다.',
         });
+
+      // 비밀번호까지 일치 할 경우 -> 토큰 생성!
+      user.generateToken((err, user) => {
+        if (err) return response.status(400).send(err);
+
+        // token을 저장 -> token을 저장하는 방법은 여러가지 (user.token으로 token을 넣어주었기 때문에 user에는 token이 저장되어 있다.)
+        // cookie, LocalStorage, Session 에도 저장 할 수 있다. -> 어디다 저장하는 것이 가장 안전한지는 더 생각해 보기
+        // cookie에 token을 저장한다. => 쿠키에 저장하기 위해서 라이브러리 하나를 추가 (express에서 제공되는 cookie-parser 추가)
+        response
+          .cookie('x_auth', user.token)
+          .status(200)
+          .json({ loginSuccess: true, userId: user._id });
+      });
     });
   });
 });

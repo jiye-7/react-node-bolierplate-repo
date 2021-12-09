@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const saltRounds = 10;
 
 const userSchema = mongoose.Schema({
@@ -74,6 +75,22 @@ userSchema.methods.comparePassword = function (plainPassword, callback) {
 
     // 비밀번호가 같다면 -> error는 없으니까 null처리, isMatch(true)
     callback(null, isMatch);
+  });
+};
+
+// generateToken method
+userSchema.methods.generateToken = function (callback) {
+  var user = this;
+
+  // jsonwebtoken을 이용하여 token 생성 -> _id: DataBase에 있는 id! / '아무 문자열' => _id + '해당 문자열' => token이 생성! => 나중에 token을 해석할 때 '해당 문자열'을 넣으면 => 다시 _id가 나온다. => 로그인 한 user가 누구인 지 알 수 있다.
+  var token = jwt.sign(user._id.toHexString(), 'secretToken');
+
+  // userSchema의 token filed에 token을 넣어준다.
+  user.token = token;
+  user.save(function (err, user) {
+    if (err) return callback(err);
+    // save가 잘 되었을 경우 -> error는 없으니까 null을 넣고, user정보를 보내준다.
+    callback(null, user);
   });
 };
 
