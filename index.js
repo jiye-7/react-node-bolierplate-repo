@@ -30,6 +30,9 @@ app.get('/', (request, response) => {
 app.post('/register', (request, response) => {
   // 가져온 User를 이용해서 instance를 만든다.
   const user = new User(request.body); // request body안에는 json 형식으로 값들이 담겨서 넘어온다. -> request body에 들어있을 수 있는 이유는 body-parser가 있기 때문.
+
+  // mongoose의 기능을 이용하여 비밀번호 암호화
+
   // mongoDB에서 오는 method, save() -> 정보들이 User model에 저장 됨, 콜백 함수
   user.save((err, userInfo) => {
     // userInfo: 저장 한 userInfo
