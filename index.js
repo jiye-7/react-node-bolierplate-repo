@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const app = express(); // new express application make
 const { User } = require('./models/User');
 const port = 5000;
-const URL = `mongodb+srv://jiye:${password}@boilerplate.q2otx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const config = require('./config/key');
 
 // bodyParser option
 // application/x-222-form-urlencoded  // 이렇게 된 data를 분석해서 가져올 수 있게 해주는 코드
@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 const mongoose = require('mongoose');
 mongoose
-  .connect(URL)
+  .connect(config.mongoURI)
   .then(() => console.log(`MongoDB Connected..!`))
   .catch((err) => console.log(err));
 
