@@ -58,8 +58,24 @@ userSchema.pre('save', function (next) {
         next();
       });
     });
+  } else {
+    // 비밀번호 변경이 아니라 다른 정보를 바꿀 때 나갈 수 있도록 처리
+    next();
   }
 });
+
+// comparePassword method
+userSchema.methods.comparePassword = function (plainPassword, callback) {
+  // 비밀번호 비교할 때 plainPassword(ex) 12345678)가 있고, DB에 있는 암호화 된 password(ex) $2b$10$6whd12w9KPexTQ4QuF2nyuIVzLXLS8VJR2YR52APt9s/4qtkw0UhG) -> 이 2가지가 같은지를 체크 해야 된다.
+  // plainPassword를 암호화 한 다음에 DB에 있는 암호화 된 password와 맞는 지 체크 필요! => 이미 암호화 된 비밀번호를 다시 복호화 할 수는 없다.
+  bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+    // 비밀번호 일치 하지 않으면
+    if (err) return callback(err);
+
+    // 비밀번호가 같다면 -> error는 없으니까 null처리, isMatch(true)
+    callback(null, isMatch);
+  });
+};
 
 // Schema를 Model로 감싸준다.
 // Model의 name, Schema를 넣어준다.

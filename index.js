@@ -45,6 +45,33 @@ app.post('/register', (request, response) => {
   });
 });
 
+/**
+ * : 로그인 라우터
+ * 1. 요청 된 email이 DB에 있는 지 찾는다.
+ * 2. DB에 해당 요청 된 email이 존재한다면, 입력한 비밀번호와 DB에 있는 비밀번호가 같은 지 확인한다.
+ * 3. 비밀번호까지 일치한다면 해당 user를 위한 Token을 생성한다.
+ */
+app.post('/login', (request, response) => {
+  // 1. 요청 된 email이 DB에 있는 지 찾는다. : DB에서 찾기 위해 user model을 가져온다. -> findOne method: mongoDB에서 제공
+  User.findOne({ email: request.body.email }, (err, userInfo) => {
+    if (!userInfo) {
+      return response.json({
+        loginSuccess: false,
+        message: '제공 된 이메일에 해당하는 사용자가 없습니다..:(',
+      });
+    }
+    // 2. 요청 된 email이 DB에 있다면, 비밀번호가 맞는 비밀번호인지 확인 ->
+    user.comparePassword(request.body.password, (err, isMatch) => {
+      // 비밀번호가 같지 않음 === 틀림
+      if (!isMatch)
+        return response.json({
+          loginSuccess: false,
+          message: '비밀번호가 틀렸습니다.',
+        });
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}!`);
 });
