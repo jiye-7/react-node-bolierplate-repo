@@ -22,7 +22,7 @@ const userSchema = mongoose.Schema({
     maxlength: 50,
   },
   role: {
-    type: Number, // 1: 관리자, 0: 일반 사용자
+    type: Number, // 1: 관리자, 0: 일반 사용자(우선 auth check에는 0이 아닐 때 다 관리자로 처리할 것이다.)
     default: 0,
   },
   image: String,
@@ -91,6 +91,22 @@ userSchema.methods.generateToken = function (callback) {
     if (err) return callback(err);
     // save가 잘 되었을 경우 -> error는 없으니까 null을 넣고, user정보를 보내준다.
     callback(null, user);
+  });
+};
+
+// token check method
+userSchema.statics.findByToken = function (token, callback) {
+  var user = this;
+
+  // 가져온 token을 decoded(복호화)한다. (verify a token symmetric)
+  jwt.verify(token, 'secretToken', function (err, decoded) {
+    // decoded된 userID를 이용해서 해당 User를 찾는다.
+    // client에서 가져 온 token과 DB에 보관되어 있는 token이 일치하는 지 비교한다.
+    user.findOne({ _id: decoded, token: token }, function (err, user) {
+      if (err) return callback(err);
+      // error가 없을 경우 user 정보 전달해주기
+      callback(null, user);
+    });
   });
 };
 

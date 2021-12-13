@@ -4,7 +4,7 @@ const port = 5000;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const config = require('./config/key');
-
+const { auth } = require('./middleware/auth');
 const { User } = require('./models/User');
 
 // bodyParser option
@@ -32,7 +32,7 @@ app.get('/', (request, response) => {
  * 1. 회원 가입 할 때 필요 한 정보들을 client에서 가져와서
  * 2. DataBase에 넣기
  */
-app.post('/register', (request, response) => {
+app.post('api/users/register', (request, response) => {
   // 가져온 User를 이용해서 instance를 만든다.
   const user = new User(request.body); // request body안에는 json 형식으로 값들이 담겨서 넘어온다. -> request body에 들어있을 수 있는 이유는 body-parser가 있기 때문.
 
@@ -56,7 +56,7 @@ app.post('/register', (request, response) => {
  * 2. DB에 해당 요청 된 email이 존재한다면, 입력한 비밀번호와 DB에 있는 비밀번호가 같은 지 확인한다.
  * 3. 비밀번호까지 일치한다면 해당 user를 위한 Token을 생성한다.
  */
-app.post('/login', (request, response) => {
+app.post('api/users/login', (request, response) => {
   // 1. 요청 된 email이 DB에 있는 지 찾는다. : DB에서 찾기 위해 user model을 가져온다. -> findOne method: mongoDB에서 제공
   User.findOne({ email: request.body.email }, (err, user) => {
     if (!user) {
@@ -87,6 +87,24 @@ app.post('/login', (request, response) => {
           .json({ loginSuccess: true, userId: user._id });
       });
     });
+  });
+});
+
+/**
+ * Auth
+ */
+app.get('/api/users/auth', auth, (request, response) => {
+  // 여기까지 auth middle ware를 통과해서 왔다 -> Authentication이 true!
+  // client에게 true 정보를 보내줘야 된다. -> user 정보들을 제공해주면 된다. (필요한 정보 선택해서 보내주면 됨)
+  response.status(200).json({
+    _id: request.user._id,
+    isAdmin: request.user.role === 0 ? false : true,
+    isAuth: true,
+    email: request.user.email,
+    name: request.user.name,
+    lastname: request.user.lastname,
+    role: request.user.role,
+    image: request.user.image,
   });
 });
 
