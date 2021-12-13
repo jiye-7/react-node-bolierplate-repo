@@ -32,7 +32,7 @@ app.get('/', (request, response) => {
  * 1. 회원 가입 할 때 필요 한 정보들을 client에서 가져와서
  * 2. DataBase에 넣기
  */
-app.post('api/users/register', (request, response) => {
+app.post('/api/users/register', (request, response) => {
   // 가져온 User를 이용해서 instance를 만든다.
   const user = new User(request.body); // request body안에는 json 형식으로 값들이 담겨서 넘어온다. -> request body에 들어있을 수 있는 이유는 body-parser가 있기 때문.
 
@@ -56,7 +56,7 @@ app.post('api/users/register', (request, response) => {
  * 2. DB에 해당 요청 된 email이 존재한다면, 입력한 비밀번호와 DB에 있는 비밀번호가 같은 지 확인한다.
  * 3. 비밀번호까지 일치한다면 해당 user를 위한 Token을 생성한다.
  */
-app.post('api/users/login', (request, response) => {
+app.post('/api/users/login', (request, response) => {
   // 1. 요청 된 email이 DB에 있는 지 찾는다. : DB에서 찾기 위해 user model을 가져온다. -> findOne method: mongoDB에서 제공
   User.findOne({ email: request.body.email }, (err, user) => {
     if (!user) {
@@ -91,7 +91,7 @@ app.post('api/users/login', (request, response) => {
 });
 
 /**
- * Auth
+ * Auth check route
  */
 app.get('/api/users/auth', auth, (request, response) => {
   // 여기까지 auth middle ware를 통과해서 왔다 -> Authentication이 true!
@@ -106,6 +106,23 @@ app.get('/api/users/auth', auth, (request, response) => {
     role: request.user.role,
     image: request.user.image,
   });
+});
+
+/**
+ * Logout route
+ * -> login 된 상태이기 때문에 auth middleware를 넣어준다.
+ */
+app.get('/api/users/logout', auth, (request, response) => {
+  console.log(request.user);
+  // 해당 User를 찾아서 Data들을 update 시켜준다.
+  User.findOneAndUpdate(
+    { _id: request.user._id },
+    { token: '' },
+    (err, user) => {
+      if (err) return response.json({ success: false, err });
+      return response.status(200).send({ success: true });
+    }
+  );
 });
 
 app.listen(port, () => {

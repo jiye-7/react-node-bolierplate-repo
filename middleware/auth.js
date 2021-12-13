@@ -7,8 +7,9 @@ const { User } = require('../models/User');
  * 2-2. User가 없으면 인증 NO
  */
 let auth = (request, response, next) => {
+  console.log(`::::::::request::::::::`, request.cookies);
   // client cookie에서 token 가져오기 -> index.js에 import 한 cookie-parser 모듈이 Cookie header를 분석 한 후 request.cookies에 분석된 것을 넣어주는 역할을 대신 해 준다.
-  let token = request.cookie.x_auth;
+  let token = request.cookies.x_auth;
 
   // 가져온 token을 복호화 한 후, User model에서 method를 만들 것임.
   User.findByToken(token, (err, user) => {
