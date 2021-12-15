@@ -1,6 +1,5 @@
 const express = require('express'); // express module 가져오기
 const app = express(); // new express application make
-const port = 5000;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const config = require('./config/key');
@@ -124,6 +123,13 @@ app.get('/api/users/logout', auth, (request, response) => {
     }
   );
 });
+
+/** axios request /api/hello */
+app.get('/api/hello', (request, response) => {
+  response.send(`cross origin issue handling :)`);
+});
+
+const port = 5000;
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}!`);
