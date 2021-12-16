@@ -1,7 +1,14 @@
 import * as axios from 'axios';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../../../_actions/user_action';
+import { useNavigate } from 'react-router-dom';
 
+// function LoginPage(props)
 function LoginPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -23,9 +30,20 @@ function LoginPage() {
       password,
     };
 
-    axios
+    // redux 사용 - loginUser라는 Action 만듦 -> _actions > user_actions.js
+    // login success -> '/' root pate -> LandingPage로 이동하게 처리하기
+    dispatch(loginUser(body)).then((response) => {
+      if (response.payload.loginSuccess) {
+        // props.history.push('/'); // react-router v5
+        navigate('/');
+      } else {
+        alert('Error');
+      }
+    });
+
+    /* axios
       .post(`/api/users/login`, body)
-      .then((response) => console.log(response));
+      .then((response) => console.log(response)); */
   };
 
   return (
