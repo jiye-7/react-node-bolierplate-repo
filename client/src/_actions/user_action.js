@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LOGIN_USER } from './types';
+import { LOGIN_USER, REGISTER_USER } from './types';
 
 export function loginUser(dataToSubmit) {
   // server에 login 요청을 보내고, response 받은 것에 data를 request에 저장
@@ -10,6 +10,17 @@ export function loginUser(dataToSubmit) {
   // return시켜서 Reducer로 보내야 된다. reducer에서 previousState, action(현재) -> 교합해서 다음 state를 만들어 줘야 된다.
   return {
     type: LOGIN_USER,
+    payload: request,
+  };
+}
+
+export function registerUser(dataToSubmit) {
+  const request = axios
+    .post('/api/users/register', dataToSubmit)
+    .then((response) => response.data);
+
+  return {
+    type: REGISTER_USER,
     payload: request,
   };
 }

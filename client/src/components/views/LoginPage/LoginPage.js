@@ -40,7 +40,7 @@ function LoginPage() {
         alert('Error');
       }
     });
-
+    // redux 사용하지 않을 때 server와 통신
     /* axios
       .post(`/api/users/login`, body)
       .then((response) => console.log(response)); */
