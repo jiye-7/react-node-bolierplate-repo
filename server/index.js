@@ -94,7 +94,7 @@ app.post('/api/users/login', (request, response) => {
  */
 app.get('/api/users/auth', auth, (request, response) => {
   // 여기까지 auth middle ware를 통과해서 왔다 -> Authentication이 true!
-  // client에게 true 정보를 보내줘야 된다. -> user 정보들을 제공해주면 된다. (필요한 정보 선택해서 보내주면 됨)
+  // client에게 true 정보를 보내줘야 된다. -> <user 정보들>을 제공해주면 된다. (필요한 정보 선택해서 보내주면 됨)
   response.status(200).json({
     _id: request.user._id,
     isAdmin: request.user.role === 0 ? false : true,
