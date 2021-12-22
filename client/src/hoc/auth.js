@@ -13,6 +13,8 @@ export default function (SpecificComponent, option, adminRoute = null) {
         console.log(response);
       });
     }, []);
+
+    return <SpecificComponent />;
   }
 
   return AuthenticationCheck;
